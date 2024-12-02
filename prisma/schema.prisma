@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url  	    = env("DATABASE_URL")
+  // uncomment next line if you use Prisma <5.10
+  // directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+model Especialidade {
+  id        Int      @id @default(autoincrement())
+  descricao String   @db.VarChar(60)
+  medicos   Medico[]
+
+  @@map("especialidades")
+}
+
+model Medico {
+  id              Int           @id @default(autoincrement())
+  nome            String        @db.VarChar(60)
+  idade           Int           @db.SmallInt
+  preco           Int
+  foto            String
+  email           String        @db.VarChar(100)
+  disponivel      Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  especialidade   Especialidade @relation(fields: [especialidadeId], references: [id])
+  especialidadeId Int
+  fotos           Foto[]
+  consultas       Consulta[]
+
+  @@map("medicos")
+}
+
+model Foto {
+  id         Int    @id @default(autoincrement())
+  descricao  String @db.VarChar(30)
+  codigoFoto String @db.Text
+  medico     Medico @relation(fields: [medicoId], references: [id])
+  medicoId   Int
+
+  @@map("fotos")
+}
+
+model Cliente {
+  id                String     @id @default(uuid()) @db.VarChar(36)
+  nome              String     @db.VarChar(60)
+  email             String     @unique @db.VarChar(60)
+  senha             String     @db.VarChar(60) // senha deve ser varchar(60)
+  codigoRecuperacao String?    @db.VarChar(6)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  consultas         Consulta[]
+
+  @@map("clientes")
+}
+
+model Admin {
+  id           Int      @id @default(autoincrement())
+  nome         String   @db.VarChar(60)
+  email        String   @db.VarChar(60) @unique
+  senha        String   @db.VarChar(60)   // senha deve ser varchar(60)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt  
+  @@map("admins")
+}
+
+model Consulta {
+  id             Int      @id @default(autoincrement())
+  cliente        Cliente  @relation(fields: [clienteId], references: [id])
+  clienteId      String
+  medico         Medico   @relation(fields: [medicoId], references: [id])
+  medicoId       Int
+  descricao      String   @db.VarChar(100)
+  status         STATUS   @default(PENDENTE)
+  resposta       String?  @db.VarChar(255)
+  createdAt      DateTime @default(now())
+  dataSolicitada DateTime
+
+  @@map("consultas")
+}
+
+enum STATUS {
+  PENDENTE
+  APROVADO
+  REPROVADO
+}
