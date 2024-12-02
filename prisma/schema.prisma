@@ -84,6 +84,7 @@ model Consulta {
   status         STATUS   @default(PENDENTE)
   resposta       String?  @db.VarChar(255)
   createdAt      DateTime @default(now())
+  updatedAt         DateTime   @updatedAt
   dataSolicitada DateTime
 
   @@map("consultas")
