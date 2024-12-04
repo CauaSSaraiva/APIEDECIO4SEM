@@ -92,6 +92,14 @@ async function enviaEmail(
     },
   });
 
+  transporter.verify((error, success) => {
+    if (error) {
+      console.error("SMTP Connection Error:", error);
+    } else {
+      console.log("SMTP Server is ready to send emails");
+    }
+  });
+
   const info = await transporter.sendMail({
     from: "caua91@outlook.com", // sender address
     to: email, // list of receivers
