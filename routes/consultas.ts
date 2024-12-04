@@ -90,30 +90,41 @@ async function enviaEmail(
       user: "194ffc000de7d0",
       pass: "158d0efaa4a7db",
     },
+    connectionTimeout: 10000, // 10 segundos
+    greetingTimeout: 10000, // 10 segundos para saudação
+    socketTimeout: 10000, // 10 segundos para a conexão
   });
 
-  transporter.verify((error, success) => {
-    if (error) {
-      console.error("SMTP Connection Error:", error);
-    } else {
-      console.log("SMTP Server is ready to send emails");
-    }
-  });
+  try {
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error("SMTP Connection Error:", error);
+      } else {
+        console.log("SMTP Server is ready to send emails");
+      }
+    });
+  
+    const info = await transporter.sendMail({
+      from: "caua91@outlook.com", // sender address
+      to: email, // list of receivers
+      subject: "Re: Req. Consulta Médica", // Subject line
+      text: resposta, // plain text body
+      html: `<h3>Estimado Cliente: ${nome}</h3>
+             <h3>consulta: ${descricao}</h3>
+             <h3>Data requisitada: ${dataSolicitada}</h3>
+             <h3>Resposta da Revenda: ${resposta}</h3>
+             <p>Muito obrigado pelo seu contato</p>
+             <p>Consultas Médicas</p>`,
+    });
+  
+    console.log("Message sent: %s", info.messageId);
+  } catch (error) {
+    console.error("erro enviando o email:", error)
+  } finally {
+    transporter.close()
+  }
 
-  const info = await transporter.sendMail({
-    from: "caua91@outlook.com", // sender address
-    to: email, // list of receivers
-    subject: "Re: Req. Consulta Médica", // Subject line
-    text: resposta, // plain text body
-    html: `<h3>Estimado Cliente: ${nome}</h3>
-           <h3>consulta: ${descricao}</h3>
-           <h3>Data requisitada: ${dataSolicitada}</h3>
-           <h3>Resposta da Revenda: ${resposta}</h3>
-           <p>Muito obrigado pelo seu contato</p>
-           <p>Consultas Médicas</p>`,
-  });
-
-  console.log("Message sent: %s", info.messageId);
+  
 }
 
 
