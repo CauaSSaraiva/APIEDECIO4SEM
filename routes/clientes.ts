@@ -277,7 +277,7 @@ router.post("/enviar-codigo", async (req, res) => {
       data: { codigoRecuperacao: codigo },
     });
 
-    enviaEmail(
+    await enviaEmail(
       cliente.nome as string,
       cliente.email as string,
       codigo as string
