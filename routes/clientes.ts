@@ -161,7 +161,36 @@ router.post("/login", async (req, res) => {
   }
 });
 
-async function enviaEmail(nome: string, email: string, codigo: string) {
+// async function enviaEmail1(nome: string, email: string, codigo: string) {
+//   const transporter = nodemailer.createTransport({
+//     host: "sandbox.smtp.mailtrap.io",
+//     port: 587,
+//     secure: false,
+//     auth: {
+//       user: "194ffc000de7d0",
+//       pass: "158d0efaa4a7db",
+//     },
+//   });
+
+//   const info = await transporter.sendMail({
+//     from: "caua91@outlook.com", // sender address
+//     to: email, // list of receivers
+//     subject: "Código de Recuperação de Senha", // Subject line
+//     text: "Utilize esse código para recuperar/alterar sua senha.", // plain text body
+//     html: `<h3>Estimado Cliente: ${nome}</h3>
+//            <h3>Seu Código de Recuperação: ${codigo}</h3>
+//            <p>Consultas Médicas</p>`,
+//   });
+
+//   console.log("Message sent: %s", info.messageId);
+// }
+
+
+async function enviaEmail(
+  nome: string,
+  email: string,
+  codigo: string,
+) {
   const transporter = nodemailer.createTransport({
     host: "sandbox.smtp.mailtrap.io",
     port: 587,
@@ -170,7 +199,19 @@ async function enviaEmail(nome: string, email: string, codigo: string) {
       user: "194ffc000de7d0",
       pass: "158d0efaa4a7db",
     },
+    connectionTimeout: 10000, // 10 segundos
+    greetingTimeout: 10000, // 10 segundos para saudação
+    socketTimeout: 10000, // 10 segundos para a conexão
   });
+
+  try {
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error("SMTP Connection Error:", error);
+      } else {
+        console.log("SMTP Server is ready to send emails");
+      }
+    });
 
   const info = await transporter.sendMail({
     from: "caua91@outlook.com", // sender address
@@ -182,8 +223,16 @@ async function enviaEmail(nome: string, email: string, codigo: string) {
            <p>Consultas Médicas</p>`,
   });
 
-  console.log("Message sent: %s", info.messageId);
+    console.log("Message sent: %s", info.messageId);
+  } catch (error) {
+    console.error("erro enviando o email:", error);
+  } finally {
+    transporter.close();
+  }
 }
+
+
+
 
 function gerarCodigo(tamanho: number) {
   const caracteres =
