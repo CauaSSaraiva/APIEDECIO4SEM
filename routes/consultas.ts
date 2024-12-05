@@ -156,7 +156,7 @@ router.patch("/:id", verificaToken, async (req, res) => {
       },
     });
 
-    enviaEmail(
+    await enviaEmail(
       dados?.cliente.nome as string,
       dados?.cliente.email as string,
       dados?.descricao as string,
